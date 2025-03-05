@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/public/results/*
 /.pnp
 .pnp.*
 .yarn/*
@@ -23,6 +24,7 @@
 # misc
 .DS_Store
 *.pem
+jmeter.log
 
 # debug
 npm-debug.log*
