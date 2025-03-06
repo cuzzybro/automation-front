@@ -4,54 +4,58 @@ import path from "path";
 import fs from "fs";
 
 export async function POST(req: Request) {
-    const { testFile } = await req.json();
-    if(!testFile) return NextResponse.json({ error: 'No test file provided'}, { status: 400});
+    const { testFiles } = await req.json();
 
-    const testPath = path.join(process.cwd(), 'public', 'test-scripts', testFile);
+    if(!testFiles || !Array.isArray(testFiles) || testFiles.length === 0){
+        return NextResponse.json({ error: 'No test file provided'}, { status: 400});
+    }
+
+
     const resultsDir = path.join(process.cwd(), `public`, `results`);
     if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir);
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const logFile = path.join(resultsDir, `${testFile}-${timestamp}.log`);
-    const logStream = fs.createWriteStream(logFile, { flags: 'a'});
-
     const jmeterCommand = 'jmeter';
+    const responseStream = new ReadableStream({
+        start(controller) {
 
-    try {
+            async function runTestsSequentially() {
 
-        const process = spawn(jmeterCommand, ['-n', '-t', testPath]);
+                for ( const testFile of testFiles ) {
 
-        const encoder = new TextEncoder();
-        
-        return new Response(
-            new ReadableStream({
-                start(controller) {
-                    process.stdout.on('data', (data) => {
-                        const message = `data: ${data.toString()}`
-                        controller.enqueue(encoder.encode(message));
-                        logStream.write(data);
-                    });
-                    process.stderr.on('data', (data) => {
-                        const errorMessage = `data: ERROR: ${data.toString()}`
-                        controller.enqueue(encoder.encode(errorMessage));
-                        logStream.write(data);
-                    });
-                    process.on('close', (code) => {
-                        logStream.write(`\nTest finished with exit code: ${code}\n`);
-                        logStream.end();
-                        controller.enqueue(encoder.encode(`\nTest finished with exit code ${code}`));
-                        controller.close();
+                    const testPath = path.join(process.cwd(), 'public', 'test-scripts', testFile);
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    const logFile = path.join(resultsDir, `${testFile}-${timestamp}.log`);
+                    const logStream = fs.createWriteStream(logFile, { flags: 'a' });
+
+                    controller.enqueue(`\nRunning test: ${testFile}\n`);
+
+                    const jr = spawn(jmeterCommand, ['-n', '-t', testPath]);
+
+                    await new Promise((resolve) => {
+                        jr.stdout.on('data', (data) => {
+                            controller.enqueue(data);
+                            logStream.write(data);
+                        });
+                        jr.stderr.on('data', (data) => {
+                            controller.enqueue(data);
+                            logStream.write(data);
+                        });
+                        jr.on('close', (code) => {
+                            logStream.write(`\nTest finished with exit code: ${code}\n`);
+                            logStream.end();
+                            controller.enqueue(`\nTest finished with exit code ${code}\n`);
+                            resolve(null);
+                        });
                     });
                 }
-            }), {
-                headers: { 
-                    'Content-Type': 'text/event-stream' ,
-                    'Cache-Control': 'no-cache',
-                    'Connection': 'keep-alive',
-                }
+                controller.close();
             }
-        );
-    } catch (error) {
-        return NextResponse.json({ message: 'Failed to execute test', error: error }, { status: 500 });
-    }
+            runTestsSequentially();
+        }
+    });
+
+    return new Response( responseStream, {
+        headers: { 'Content-Type': "text/plain" }
+    });
+
 }

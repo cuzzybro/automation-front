@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 
 export default function JMeterRunner() {
     const [ tests, setTests ] = useState<string[]>([]);
-    const [ selectedTest, setSelectedTest ] = useState('');
+    const [ selectedTests, setSelectedTests ] = useState<string[]>([]);
     const [ output, setOutput ] = useState('');
     const [ running, setRunning ] = useState(false);
     const [ progress, setProgress ] = useState(0);
@@ -41,11 +41,11 @@ export default function JMeterRunner() {
         if (logRef.current) {
             logRef.current.scrollTop = logRef.current.scrollHeight;
         }
-    })
+    }, [output]);
 
 
     async function runTest() {
-        if (!selectedTest) return;
+        if (!selectedTests) return;
         setOutput('');
         setRunning(true);
         setProgress(0);
@@ -55,7 +55,7 @@ export default function JMeterRunner() {
             const res = await fetch('/api/run-tests', {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ testFile: selectedTest }),
+                body: JSON.stringify({ testFiles: selectedTests }),
             });
 
             if (!res.body) {
@@ -88,11 +88,13 @@ export default function JMeterRunner() {
         <div className="p-4 bg-black shadow rounded-lg">
           <h2 className="text-lg font-bold mb-2">JMeter Test Runner</h2>
           <select
+            multiple
             className="border p-2 w-full mb-4 bg-slate-700"
-            value={selectedTest}
-            onChange={(e) => setSelectedTest(e.target.value)}
+            value={selectedTests}
+            onChange={(e) =>
+                setSelectedTests(Array.from(e.target.selectedOptions, option => option.value))}
           >
-            <option value="">Select a test</option>
+            {/* <option value="">Select a test</option> */}
             {tests.map((test) => (
               <option key={test} value={test}>{test}</option>
             ))}
