@@ -1,8 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import LoginModal from "./LoginModal";
 
 export default function JMeterRunner() {
+    const router = useRouter();
     const [ tests, setTests ] = useState<string[]>([]);
     const [ selectedTests, setSelectedTests ] = useState<string[]>([]);
     const [ output, setOutput ] = useState('');
@@ -10,14 +14,39 @@ export default function JMeterRunner() {
     const [ progress, setProgress ] = useState(0);
     const [ results, setResults] = useState<string[]>([]);
     const logRef = useRef<HTMLPreElement>(null);
+    const [ showLoginModal, setShowLoginModal ] = useState(false);
 
+    // check properties file
+    useEffect(() => {
+        const checkPropertiesFile = async () => {
+            try {
+                const response = await fetch("/api/check-properties", { method: "GET" });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error( data.error ?? "Failed to check properties");
+                }
+
+                if (data.isEmpty) {
+                    setShowLoginModal(true);
+                }
+
+            } catch (err) {
+                console.log(err);
+                setShowLoginModal(false);
+            }
+        };
+        checkPropertiesFile();
+    }, []);
+
+    // fetch tests
     useEffect(() => {
         async function fetchTests() {
             try {
                 const res = await fetch('/api/tests');
 
                 if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-                
+
                 const data = await res.json();
                 setTests(data.tests);
             } catch (error) {
@@ -28,6 +57,7 @@ export default function JMeterRunner() {
         fetchTests();
     }, []);
 
+    // fetch results
     useEffect(() => {
         async function fetchResults() {
             const res = await fetch("/api/results");
@@ -37,13 +67,14 @@ export default function JMeterRunner() {
         fetchResults();
     }, []);
 
+    // scrolling log
     useEffect(() => {
         if (logRef.current) {
             logRef.current.scrollTop = logRef.current.scrollHeight;
         }
     }, [output]);
 
-
+    // process jmeter test
     async function runTest() {
         if (!selectedTests) return;
         setOutput('');
@@ -85,7 +116,31 @@ export default function JMeterRunner() {
     }
 
     return (
-        <div className="p-4 bg-black shadow rounded-lg">
+        <div className="relative">
+        {/* Modal for Login Popup */}
+        <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={() => {
+          setShowLoginModal(false);
+          router.refresh();
+        }}
+      />
+
+      <div className="p-4 shadow rounded-lg m-40">
+        <div className="flex justify-between items-center mb-4">
+          <button
+            onClick={() => setShowLoginModal(true)}
+            className="px-4 py-2 rounded-full w-[180px] bg-green-500 text-white font-bold uppercase"
+          >
+            Update Details
+          </button>
+        </div>
+        {/* Original code */}
+        <div className="p-4 shadow rounded-lg m-40">
+          <button className="px-4 py-2 rounded-full w-[140px] bg-blue-500 text-white font-bold uppercase my-4">
+            <Link href="/">Home</Link>
+          </button>
           <h2 className="text-lg font-bold mb-2">JMeter Test Runner</h2>
           <select
             multiple
@@ -102,7 +157,7 @@ export default function JMeterRunner() {
           <button
             onClick={runTest}
             disabled={running}
-            className={`px-4 py-2 rounded ${running ? 'bg-gray-400' : 'bg-blue-500 text-white'}`}
+            className={`px-4 py-2 rounded-full w-[140px] font-bold uppercase ${running ? 'bg-gray-400' : 'bg-blue-500 text-white'}`}
           >
             {running ? 'Running...' : 'Run Test'}
           </button>
@@ -135,7 +190,9 @@ export default function JMeterRunner() {
             ) : (
                 <li>No logs available</li>
             )}
-            </ul>    
+            </ul>
         </div>
+    </div>
+    </div>
       );
 }
