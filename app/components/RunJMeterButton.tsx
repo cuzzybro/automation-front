@@ -29,7 +29,7 @@ export default function RunJMeterButton() {
     <div className="flex flex-col items-center space-y-4">
       <button 
         onClick={runJMeterTest} 
-        className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50"
+        className="px-4 py-2 my-4 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 "
         disabled={loading}
       >
         {loading ? 'Running...' : 'Run JMeter Test'}

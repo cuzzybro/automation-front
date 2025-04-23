@@ -2,9 +2,11 @@
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan">
+      <boolProp name="TestPlan.functional_mode">true</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group">
@@ -18,12 +20,15 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Sampler">
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Sampler" enabled="true">
           <stringProp name="cacheKey">true</stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="parameters"></stringProp>
-          <stringProp name="script">log.info(&quot;stop&quot;);</stringProp>
-          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="script">log.info(&quot;stop&quot;);
+System.out.println(&quot;did this work?&quot;);
+System.out.println(props.get(&quot;userid&quot;));
+log.info(props.get(&quot;userid&quot;));</stringProp>
+          <stringProp name="scriptLanguage">java</stringProp>
         </JSR223Sampler>
         <hashTree/>
       </hashTree>
