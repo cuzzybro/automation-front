@@ -10,11 +10,14 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'No test file provided'}, { status: 400});
     }
 
-
     const resultsDir = path.join(process.cwd(), `public`, `results`);
+
     if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir);
 
-    const jmeterCommand = 'jmeter';
+    const dirPath = path.join(process.cwd(), 'public', 'test-scripts');
+
+    const jmeterCommand = `jmeter`;
+
     const responseStream = new ReadableStream({
         start(controller) {
 
@@ -22,25 +25,30 @@ export async function POST(req: Request) {
 
                 for ( const testFile of testFiles ) {
 
-                    const testPath = path.join(process.cwd(), 'public', 'test-scripts', testFile);
+                    const testPath = path.join(dirPath, testFile);
+
                     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
                     const logFile = path.join(resultsDir, `${testFile}-${timestamp}.log`);
+
                     const logStream = fs.createWriteStream(logFile, { flags: 'a' });
 
                     controller.enqueue(`\nRunning test: ${testFile}\n`);
 
-                    const jr = spawn(jmeterCommand, ['-n', '-t', testPath]);
+                    // to use the properties set in the user.properties file in a particular directory, jmeter should be launched from there
+                    // using cwd option in spawn you can provide the directory path and ensure jmeter launches from there
+                    const jr = spawn(jmeterCommand , ['-n', '-t', testPath], { cwd: dirPath });
 
-                    await new Promise((resolve) => {
-                        jr.stdout.on('data', (data) => {
+                    await new Promise( (resolve) => {
+                        jr.stdout.on( 'data', (data) => {
                             controller.enqueue(data);
                             logStream.write(data);
                         });
-                        jr.stderr.on('data', (data) => {
+                        jr.stderr.on( 'data', (data) => {
                             controller.enqueue(data);
                             logStream.write(data);
                         });
-                        jr.on('close', (code) => {
+                        jr.on( 'close', (code) => {
                             logStream.write(`\nTest finished with exit code: ${code}\n`);
                             logStream.end();
                             controller.enqueue(`\nTest finished with exit code ${code}\n`);
