@@ -166,14 +166,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <div className='flex'>
-            {/* <div className="flex justify-end space-x-2"> */}
-            {/* <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 rounded-md bg-gray-300 text-gray-700 hover:bg-gray-400"
-            >
-                Cancel
-            </button> */}
             <button
                 type="submit"
                 className="w-full px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"

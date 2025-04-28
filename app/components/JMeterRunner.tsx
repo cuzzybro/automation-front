@@ -69,14 +69,16 @@ export default function JMeterRunner() {
 
     // scrolling log
     useEffect(() => {
-        if (logRef.current) {
+        if ( logRef.current ) {
             logRef.current.scrollTop = logRef.current.scrollHeight;
         }
     }, [output]);
 
     // process jmeter test
     async function runTest() {
+
         if (!selectedTests) return;
+
         setOutput('');
         setRunning(true);
         setProgress(0);
@@ -128,19 +130,17 @@ export default function JMeterRunner() {
       />
 
       <div className="p-4 shadow rounded-lg m-40">
-        <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={() => setShowLoginModal(true)}
-            className="px-4 py-2 rounded-full w-[180px] bg-green-500 text-white font-bold uppercase"
-          >
-            Update Details
-          </button>
-        </div>
         {/* Original code */}
         <div className="p-4 shadow rounded-lg m-40">
-          <button className="px-4 py-2 rounded-full w-[140px] bg-blue-500 text-white font-bold uppercase my-4">
-            <Link href="/">Home</Link>
-          </button>
+            <div className="flex justify-between items-center">
+                <button className="px-4 py-2 rounded-full w-[180px] bg-blue-500 text-white font-bold uppercase my-4">
+                    <Link href="/">Home</Link>
+                </button>
+                <button className="px-4 py-2 rounded-full w-[180px] bg-green-500 text-white font-bold uppercase my-4">
+                    Update User
+                </button>
+            </div>
+
           <h2 className="text-lg font-bold mb-2">JMeter Test Runner</h2>
           <select
             multiple
@@ -154,27 +154,25 @@ export default function JMeterRunner() {
               <option key={test} value={test}>{test}</option>
             ))}
           </select>
-          <button
-            onClick={runTest}
-            disabled={running}
-            className={`px-4 py-2 rounded-full w-[140px] font-bold uppercase ${running ? 'bg-gray-400' : 'bg-blue-500 text-white'}`}
-          >
-            {running ? 'Running...' : 'Run Test'}
-          </button>
-            {
-                running && (
-                    <div className="w-full bg-gray-200 rounded mt-4">
-                        <div
-                            className="bg-blue-500 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded"
-                            style={{ width: `${progress}%` }}
-                        >
-                            {progress}%
-                        </div>
+            <button
+                onClick={ runTest }
+                disabled={ running }
+                className={`px-4 py-2 rounded-full w-[180px] font-bold uppercase ${running ? 'bg-gray-400' : 'bg-blue-500 text-white'}`}
+            >
+                { running ? 'Running...' : 'Run Tests' }
+            </button>
+            { running && (
+                <div className=" w-full bg-gray-200 rounded mt-4 ">
+                    <div
+                        className=" bg-blue-500 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded "
+                        style={{ width: `${progress}%` }}
+                    >
+                        { progress }%
                     </div>
-                )
-            }
+                </div>
+            )}
 
-          {output && (
+          { output && (
             <pre ref={logRef} className="mt-4 p-2 bg-slate-700 border h-40 overflow-y-auto">
               {output}
             </pre>

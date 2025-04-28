@@ -4,7 +4,7 @@ import path from "path";
 
 export async function GET() {
 
-    const filePath = path.join(process.cwd(), "public", "test-scripts", "user.properties");
+    const filePath = path.join( process.cwd(), "public", "test-scripts", "user.properties" );
 
     try {
 
