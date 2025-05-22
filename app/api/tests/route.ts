@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
-import path from 'path';
+import { TEST_DIR } from '@/app/lib/constants';
 
 export async function GET() {
 
     try {
 
-      const testDir = path.join(process.cwd(), 'public', 'test-scripts');
-
-      const files = fs.readdirSync(testDir).filter(file => file.endsWith('.jmx'));
+      const files = fs.readdirSync(TEST_DIR).filter(file => file.endsWith('.jmx'));
 
       return NextResponse.json({ tests: files });
 

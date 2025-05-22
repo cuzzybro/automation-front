@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { spawn } from "child_process";
 import path from "path";
 import fs from "fs";
+import { TEST_DIR, RESULTS_DIR } from "@/app/lib/constants";
 
 export async function POST(req: Request) {
 
@@ -11,11 +12,7 @@ export async function POST(req: Request) {
         return NextResponse.json( { error: 'No test file provided'}, { status: 400} );
     }
 
-    const resultsDir = path.join( process.cwd(), `public`, `results` );
-
-    if ( !fs.existsSync( resultsDir ) ) fs.mkdirSync( resultsDir );
-
-    const dirPath = path.join( process.cwd(), 'public', 'test-scripts' );
+    if ( !fs.existsSync( RESULTS_DIR ) ) fs.mkdirSync( RESULTS_DIR );
 
     const jmeterCommand = `jmeter`;
 
@@ -26,11 +23,11 @@ export async function POST(req: Request) {
 
                 for ( const testFile of testFiles ) {
 
-                    const testPath = path.join( dirPath, testFile );
+                    const testPath = path.join( TEST_DIR, testFile );
 
                     const timestamp = new Date().toISOString().replace( /[:.]/g, '-' );
 
-                    const logFile = path.join( resultsDir, `${testFile}-${timestamp}.log` );
+                    const logFile = path.join( RESULTS_DIR, `${testFile}-${timestamp}.log` );
 
                     const logStream = fs.createWriteStream( logFile, { flags: 'a' } );
 
@@ -38,7 +35,7 @@ export async function POST(req: Request) {
 
                     // to use the properties set in the user.properties file in a particular directory, jmeter should be launched from there
                     // using cwd option in spawn you can provide the directory path and ensure jmeter launches from there
-                    const jr = spawn(jmeterCommand , ['-n', '-t', testPath], { cwd: dirPath });
+                    const jr = spawn(jmeterCommand , ['-n', '-t', testPath], { cwd: TEST_DIR });
 
                     await new Promise( (resolve) => {
                         jr.stdout.on( 'data', ( data ) => {

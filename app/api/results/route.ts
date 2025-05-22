@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
-import path from "path";
+import { RESULTS_DIR } from "@/app/lib/constants";
 
 export async function GET() {
 
     try {
 
-        const resultsDir = path.join( process.cwd(), "public", "results" );
-        if ( !fs.existsSync( resultsDir ) ) return NextResponse.json({ results: [] });
+        if ( !fs.existsSync( RESULTS_DIR ) ) return NextResponse.json({ results: [] });
 
-        const files = fs.readdirSync( resultsDir ).filter( file => file.endsWith( ".log" ) );
+        const files = fs.readdirSync( RESULTS_DIR ).filter( file => file.endsWith( ".log" ) );
         return NextResponse.json( { results: files } );
 
     } catch ( error ) {

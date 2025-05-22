@@ -136,24 +136,28 @@ export default function JMeterRunner() {
                 <button className="px-4 py-2 rounded-full w-[180px] bg-blue-500 text-white font-bold uppercase my-4">
                     <Link href="/">Home</Link>
                 </button>
-                <button className="px-4 py-2 rounded-full w-[180px] bg-green-500 text-white font-bold uppercase my-4">
+                <button 
+                    onClick={() => setShowLoginModal(true)}
+                    className="px-4 py-2 rounded-full w-[180px] bg-green-500 text-white font-bold uppercase my-4"
+                >
                     Update User
                 </button>
             </div>
 
-          <h2 className="text-lg font-bold mb-2">JMeter Test Runner</h2>
-          <select
-            multiple
-            className="border p-2 w-full mb-4 bg-slate-700"
-            value={selectedTests}
-            onChange={(e) =>
-                setSelectedTests(Array.from(e.target.selectedOptions, option => option.value))}
-          >
-            {/* <option value="">Select a test</option> */}
-            {tests.map((test) => (
-              <option key={test} value={test}>{test}</option>
-            ))}
-          </select>
+            <h2 className="text-lg font-bold mb-2">JMeter Test Runner</h2>
+            <select
+                multiple
+                className="border p-2 w-full mb-4 bg-slate-700 h-40 overflow-y-auto"
+                value={selectedTests}
+                onChange={(e) =>
+                    setSelectedTests(Array.from(e.target.selectedOptions, option => option.value))}
+            >
+                {/* <option value="">Select a test</option> */}
+                {tests.map((test) => (
+                <option key={test} value={test}>{test}</option>
+                ))}
+            </select>
+
             <button
                 onClick={ runTest }
                 disabled={ running }
@@ -161,6 +165,7 @@ export default function JMeterRunner() {
             >
                 { running ? 'Running...' : 'Run Tests' }
             </button>
+
             { running && (
                 <div className=" w-full bg-gray-200 rounded mt-4 ">
                     <div
@@ -172,13 +177,14 @@ export default function JMeterRunner() {
                 </div>
             )}
 
-          { output && (
-            <pre ref={logRef} className="mt-4 p-2 bg-slate-700 border h-40 overflow-y-auto">
-              {output}
-            </pre>
-          )}
-          <h3 className="text-lg font-bold mt-6">Previous Test Logs</h3>
-            <ul className="mt-2 border p-2 bg-slate-700">
+            { output && (
+                <pre ref={logRef} className="mt-4 p-2 bg-slate-700 border h-40 overflow-y-auto">
+                {output}
+                </pre>
+            )}
+
+            <h3 className="text-lg font-bold mt-6">Previous Test Logs</h3>
+            <ul className="mt-2 border p-2 bg-slate-700 h-40 overflow-y-auto">
             {results.length > 0 ? (
                 results.map((result) => (
                 <li key={result}>

@@ -2,3 +2,9 @@ node_modules
 npm-debug.log
 .next
 public/results
+.vscode
+docker/*
+package-lock.json
+sandpit.ts
+*.log
+public/test-scripts/user.properties
