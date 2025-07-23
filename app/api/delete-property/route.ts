@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
-import { Properties } from "@/app/lib/types";
-import { PROPERTIES_FILE } from "@/app/lib/constants";
+import { Properties } from "@/lib/types";
+import { PROPERTIES_FILE } from "@/lib/constants";
 
 async function readProperties(): Promise<Properties> {
   try {

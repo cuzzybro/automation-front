@@ -9,3 +9,8 @@ export type UserProperties = {
     pw: string;
   }
 }
+
+export type SessionPayload = {
+  userId: string;
+  expiresAt: Date;
+}

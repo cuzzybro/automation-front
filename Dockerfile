@@ -1,37 +1,42 @@
-# Start with Node.js 23 Alpine base image
-FROM node:23-alpine
+FROM node:22-alpine AS build
 
-# Install necessary tools and Azul Zulu OpenJDK 21 JRE
-RUN apk add --no-cache curl && \
-    curl -fsSL https://cdn.azul.com/zulu/bin/zulu21.36.17-ca-jre21.0.4-linux_musl_x64.tar.gz | tar -xz -C /opt && \
-    ln -s /opt/zulu21.36.17-ca-jre21.0.4-linux_musl_x64 /opt/jre && \
-    apk del curl && \
-    rm -rf /var/cache/apk/*
-
-# Install JMeter 5.6.3
-RUN apk add --no-cache curl && \
-    curl -fsSL https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz | tar -xz -C /opt && \
-    ln -s /opt/apache-jmeter-5.6.3 /opt/jmeter && \
-    apk del curl && \
-    rm -rf /var/cache/apk/*
-
-# Set environment variables for Java and JMeter
-ENV JAVA_HOME=/opt/jre
-ENV PATH=$JAVA_HOME/bin:/opt/jmeter/bin:$PATH
-
-# Verify installations
-# RUN node --version && \
-#     npm --version && \
-#     java --version && \
-#     jmeter --version
-
-# Set working directory
 WORKDIR /app
 
-COPY . .
+COPY package*.json ./
 
 RUN npm install
 
+COPY . .
+
+RUN npm run build
+
+FROM alpine:3.20
+
+RUN apk add --no-cache openjdk21-jre nodejs npm
+
+ENV JMETER_VERSION=5.6.3
+
+RUN wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz -O /tmp/jmeter.tgz \
+    && tar -xzf /tmp/jmeter.tgz -C /opt \
+    && rm /tmp/jmeter.tgz \
+    && ln -s /opt/apache-jmeter-${JMETER_VERSION} /opt/jmeter
+
+ENV PATH=/opt/jmeter/bin:$PATH
+
+WORKDIR /app
+COPY --from=build /app/.next ./.next
+COPY --from=build /app/test_suite ./test_suite
+COPY --from=build /app/lib ./lib
+COPY --from=build /app/public ./public
+
+COPY package*.json ./
+RUN npm install --production
+
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+VOLUME /jmeter-data
+
+ENV JMETER_TEST_DIR=/jmeter-data
+
+CMD [ "npm", "run", "start" ]
+

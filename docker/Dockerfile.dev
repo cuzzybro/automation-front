@@ -1,0 +1,41 @@
+FROM alpine:latest AS base
+
+WORKDIR /app
+
+RUN apk add --update nodejs npm bash
+
+COPY ./package*.json .
+
+FROM base AS build
+
+WORKDIR /app
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+FROM azul/zulu-openjdk-alpine:22-jre-headless-latest
+
+WORKDIR /app
+
+RUN apk add nodejs npm wget bash
+
+ENV JMETER_VERSION=5.6.3
+
+RUN wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz -O /tmp/jmeter.tgz \
+    && tar -xzf /tmp/jmeter.tgz -C /opt \
+    && rm /tmp/jmeter.tgz \
+    && ln -s /opt/apache-jmeter-${JMETER_VERSION} /opt/jmeter
+
+ENV PATH=/opt/jmeter/bin:$PATH
+
+COPY --from=build /app/.next /app/.next
+COPY /public /app/public
+COPY /test_suite /app/test_suite
+COPY package*.json .
+
+RUN npm install next
+
+CMD ["bash"]

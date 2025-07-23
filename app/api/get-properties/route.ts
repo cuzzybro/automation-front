@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
-import { PROPERTIES_FILE } from "@/app/lib/constants";
+import { PROPERTIES_FILE } from "@/lib/constants";
 
 export async function GET() {
 

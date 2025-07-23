@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
-import type { Properties } from "@/app/lib/types";
-import { PROPERTIES_FILE } from "@/app/lib/constants";
+import type { Properties } from "@/lib/types";
+import { PROPERTIES_FILE } from "@/lib/constants";
 
 interface RequestBody {
   properties?: { [key: string]: string }; // Key-value pairs to update or add

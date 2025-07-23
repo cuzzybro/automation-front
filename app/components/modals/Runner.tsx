@@ -3,20 +3,20 @@
 import React, { HTMLAttributes, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import type ReactModal from 'react-modal';
-import type { UserProperties } from '../../lib/types';
+import type { UserProperties } from '../../../lib/types';
 
 // Dynamically import react-modal to avoid SSR issues
 const Modal = dynamic(() => import('react-modal'), { ssr: false }) as typeof ReactModal & {
   setAppElement: (element: string | HTMLElement) => void;
 };
 
-interface LoginModalProps {
+interface RunnerModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) => {
+const RunnerModal: React.FC<RunnerModalProps> = ({ isOpen, onClose, onSuccess }) => {
 
     const [formData, setFormData] = useState<UserProperties>({
         properties: {
@@ -75,7 +75,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
             ...prev.properties,
             [name]: value,
         }
-        
+
         }));
     };
 
@@ -215,4 +215,4 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
     );
 };
 
-export default LoginModal;
+export default RunnerModal;

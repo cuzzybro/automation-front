@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { spawn } from "child_process";
 import path from "path";
 import fs from "fs";
-import { TEST_DIR, RESULTS_DIR } from "@/app/lib/constants";
+import { TEST_DIR, RESULTS_DIR } from "@/lib/constants";
 
 export async function POST(req: Request) {
 

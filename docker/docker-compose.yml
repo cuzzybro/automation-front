@@ -1,0 +1,13 @@
+services:
+  #...
+  # Other services
+  #
+  sqlite:
+    image: sqlite-alpine:latest
+    container_name: sqlite
+    hostname: sqlite.home
+    ports:
+      - "8191:8191"
+    volumes:
+      - ./sqlite:/db
+    command: ["tail", "-f", "/dev/null"]

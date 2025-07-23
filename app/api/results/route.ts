@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
-import { RESULTS_DIR } from "@/app/lib/constants";
+import { RESULTS_DIR } from "@/lib/constants";
 
 export async function GET() {
 
