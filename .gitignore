@@ -4,6 +4,11 @@
 /node_modules
 /public/assets
 /test_suite/results
+/test_suite/reporting/allure-results/* 
+/test_suite/reporting/allure-report
+/test_suite/user.properties
+*.log
+*-lock.json
 
 /.pnp
 .pnp.*
